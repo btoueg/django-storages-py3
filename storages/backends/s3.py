@@ -10,7 +10,7 @@ from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    from S3 import AWSAuthConnection, QueryStringAuthGenerator, CallingFormat
+    from .S3_ import AWSAuthConnection, QueryStringAuthGenerator, CallingFormat
 except ImportError:
     raise ImproperlyConfigured("Could not load amazon's S3 bindings.\nSee "
         "http://developer.amazonwebservices.com/connect/entry.jspa?externalID=134")
@@ -25,6 +25,7 @@ SECURE_URLS         = getattr(settings, 'AWS_S3_SECURE_URLS', False)
 BUCKET_PREFIX       = getattr(settings, 'AWS_BUCKET_PREFIX', '')
 CALLING_FORMAT      = getattr(settings, 'AWS_CALLING_FORMAT', CallingFormat.PATH)
 PRELOAD_METADATA    = getattr(settings, 'AWS_PRELOAD_METADATA', False)
+DEFAULT_HOST        = getattr(settings, 'AWS_HOST', 's3-eu-west-1.amazonaws.com')
 
 IS_GZIPPED          = getattr(settings, 'AWS_IS_GZIPPED', False)
 GZIP_CONTENT_TYPES  = getattr(settings, 'GZIP_CONTENT_TYPES', (
@@ -70,7 +71,8 @@ class S3Storage(Storage):
             access_key, secret_key = self._get_access_keys()
 
         self.connection = AWSAuthConnection(access_key, secret_key,
-                            calling_format=calling_format)
+                                            calling_format=calling_format,
+                                            server=DEFAULT_HOST)
         self.generator = QueryStringAuthGenerator(access_key, secret_key,
                             calling_format=calling_format,
                             is_secure=SECURE_URLS)
@@ -100,7 +102,7 @@ class S3Storage(Storage):
         return self._entries
 
     def _get_connection(self):
-        return AWSAuthConnection(*self._get_access_keys())
+        return AWSAuthConnection(*self._get_access_keys(), server=DEFAULT_HOST)
 
     def _clean_name(self, name):
         # Useful for windows' paths
