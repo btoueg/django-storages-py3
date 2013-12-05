@@ -207,6 +207,11 @@ class S3Storage(Storage):
         content_length = response.getheader('Content-Length')
         return content_length and int(content_length) or 0
 
+    def etag(self, name):
+        name = self._clean_name(name)
+        response = self.connection._make_request('HEAD', self.bucket, name)
+        return response.getheader('ETag')
+
     def url(self, name):
         name = self._clean_name(name)
         if QUERYSTRING_ACTIVE:
