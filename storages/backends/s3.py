@@ -9,11 +9,13 @@ from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
 
-try:
-    from .S3_ import AWSAuthConnection, QueryStringAuthGenerator, CallingFormat
-except ImportError:
-    raise ImproperlyConfigured("Could not load amazon's S3 bindings.\nSee "
-        "http://developer.amazonwebservices.com/connect/entry.jspa?externalID=134")
+import importlib.machinery
+
+module_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),'S3.py')
+loader = importlib.machinery.SourceFileLoader("S3", module_path)
+S3 = loader.load_module("S3")
+
+from S3 import AWSAuthConnection, QueryStringAuthGenerator, CallingFormat
 
 ACCESS_KEY_NAME     = getattr(settings, 'AWS_S3_ACCESS_KEY_ID', getattr(settings, 'AWS_ACCESS_KEY_ID', None))
 SECRET_KEY_NAME     = getattr(settings, 'AWS_S3_SECRET_ACCESS_KEY', getattr(settings, 'AWS_SECRET_ACCESS_KEY', None))
