@@ -2,7 +2,7 @@ import os
 import mimetypes
 import warnings
 
-from io import StringIO
+from io import StringIO, BytesIO
 
 from django.conf import settings
 from django.core.files.base import File
@@ -277,7 +277,7 @@ class S3StorageFile(File):
             current_range, size = content_range.split(' ', 1)[1].split('/', 1)
             start_range, end_range = current_range.split('-', 1)
             self._size, self.start_range = int(size), int(end_range)+1
-        self.file = StringIO(data)
+        self.file = BytesIO(data)
         return self.file.getvalue()
 
     def write(self, content):
