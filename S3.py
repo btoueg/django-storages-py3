@@ -64,7 +64,7 @@ def canonical_string(method, bucket="", key="", query_args={}, headers={}, expir
         buf += "/%s" % bucket
 
     # add the key.  even if it doesn't exist, add the slash
-    buf += "/%s" % urllib.parse.quote_plus(key)
+    buf += "/%s" % urllib.parse.quote_plus(key, safe='/')
 
     # handle special query string arguments
 

@@ -77,6 +77,7 @@ class S3Storage(Storage):
                                             server=DEFAULT_HOST)
         self.generator = QueryStringAuthGenerator(access_key, secret_key,
                             calling_format=calling_format,
+                            server=DEFAULT_HOST,
                             is_secure=SECURE_URLS)
         self.generator.set_expires_in(QUERYSTRING_EXPIRE)
 
