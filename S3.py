@@ -20,7 +20,7 @@ import time
 import urllib.request, urllib.parse, urllib.error
 import urllib.parse
 import xml.sax
-import socket
+import socket, ssl
 
 DEFAULT_HOST = 's3.amazonaws.com'
 PORTS_BY_SECURITY = { True: 443, False: 80 }
@@ -281,7 +281,7 @@ class AWSAuthConnection:
                 try:
                     connection.request(method, path, data, final_headers)
                     done = True
-                except socket.gaierror as e:
+                except (socket.gaierror, ssl.SSLZeroReturnError) as e:
                     print(e)
                     if attempts > 3:
                         raise
