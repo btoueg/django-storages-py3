@@ -253,7 +253,7 @@ class AWSAuthConnection:
 
         # add the slash after the bucket regardless
         # the key will be appended if it is non-empty
-        path += "/%s" % urllib.parse.quote_plus(key)
+        path += "/%s" % urllib.parse.quote_plus(key, safe='/')
 
 
         # build the path_argument string
