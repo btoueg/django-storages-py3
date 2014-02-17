@@ -20,6 +20,7 @@ import time
 import urllib.request, urllib.parse, urllib.error
 import urllib.parse
 import xml.sax
+import socket
 
 DEFAULT_HOST = 's3.amazonaws.com'
 PORTS_BY_SECURITY = { True: 443, False: 80 }
@@ -257,7 +258,7 @@ class AWSAuthConnection:
 
 
         # build the path_argument string
-        # add the ? in all cases since 
+        # add the ? in all cases since
         # signature and credentials follow path args
         if len(query_args):
             path += "?" + query_args_hash_to_string(query_args)
@@ -265,7 +266,7 @@ class AWSAuthConnection:
         is_secure = self.is_secure
         host = "%s:%d" % (server, self.port)
         while True:
-            if (is_secure):
+            if is_secure:
                 connection = http.client.HTTPSConnection(host)
             else:
                 connection = http.client.HTTPConnection(host)
@@ -274,7 +275,18 @@ class AWSAuthConnection:
             # add auth header
             self._add_aws_auth_header(final_headers, method, bucket, key, query_args)
 
-            connection.request(method, path, data, final_headers)
+            attempts = 0
+            done = False
+            while not done:
+                try:
+                    connection.request(method, path, data, final_headers)
+                    done = True
+                except socket.gaierror as e:
+                    print(e)
+                    if attempts > 3:
+                        raise
+                finally:
+                    attempts += 1
             resp = connection.getresponse()
             if resp.status < 300 or resp.status >= 400:
                 return resp
